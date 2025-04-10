@@ -16,5 +16,5 @@ public interface TioService {
     public void delete(Long id);
     public boolean existsById(Long id);
     public boolean existsByNombre(String nombre);
-    public boolean exixtsByEmail(String email);
+    public boolean existsByEmail(String email);
 }

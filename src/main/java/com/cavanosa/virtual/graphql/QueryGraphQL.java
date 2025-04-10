@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component;
 public class QueryGraphQL implements GraphQLQueryResolver {
 
     public String hello() {
-        return "Hello GraphQL";
+        return "Hello GraphQL";  // Esto nunca debe ser null
     }
 
     public int soma(int a, int b) {
-        return a + b;
+        return a + b;  // Esto devolverá la suma de los parámetros
     }
 }

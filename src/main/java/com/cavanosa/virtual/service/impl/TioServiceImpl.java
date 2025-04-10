@@ -80,7 +80,7 @@ public class TioServiceImpl implements TioService{
 
     @Transactional(readOnly = true)
     @Override
-    public boolean exixtsByEmail(String email){
+    public boolean existsByEmail(String email){
         return tioRepository.existsByEmail(email);
     }
 

@@ -1,6 +1,6 @@
 type Query {
 
-    hello:String!
+    hello:String
 
     soma(a:Int, b:Int):Int
 }
