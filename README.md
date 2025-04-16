@@ -205,6 +205,7 @@ query GetCliente($id:ID!){
 >- http://localhost:8762/swagger-ui/index.html#/tipo-cambio-controller/getCambio
 
 ### proyecto de graphql
->- http://localhost:8080/graphql/schema.json
+>- http://localhost:8762/graphql/query.json
+>- http://localhost:8762/graphiql?path=/graphql
 
 
