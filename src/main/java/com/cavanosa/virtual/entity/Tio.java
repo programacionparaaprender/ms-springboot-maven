@@ -1,5 +1,7 @@
 package com.cavanosa.virtual.entity;
 
+import com.cavanosa.virtual.dto.TioDto;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -39,6 +41,14 @@ public class Tio {
         this.nombre = nombre;
         this.email = email;
         this.password = password;
+    }
+    
+    public Tio convert(TioDto tioDto) {
+    	Tio tio = new Tio();
+    	tio.setId(0L);
+    	tio.setNombre(tioDto.getNombre());
+    	tio.setEmail(tioDto.getEmail());
+    	return tio;
     }
     
     @Override

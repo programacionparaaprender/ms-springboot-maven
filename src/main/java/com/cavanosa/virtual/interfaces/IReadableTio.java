@@ -14,4 +14,6 @@ public interface IReadableTio<T>{
     public Optional<Tio> getOneById(Long id);
     public Optional<Tio> getOneByNombre(String nombre);
     public Optional<Tio> getOneByEmail(String email);
+    public boolean existsByIdAndNombre(Long id, String nombre);
+    public boolean existsByNombreAndIdNot(String nombre, Long id);
 }

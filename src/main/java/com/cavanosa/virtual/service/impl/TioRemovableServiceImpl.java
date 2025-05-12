@@ -8,7 +8,6 @@ import com.cavanosa.virtual.interfaces.IRemovable;
 import com.cavanosa.virtual.repository.TioRepository;
 
 @Service
-@Transactional
 public class TioRemovableServiceImpl implements IRemovable{
 
 	@Autowired

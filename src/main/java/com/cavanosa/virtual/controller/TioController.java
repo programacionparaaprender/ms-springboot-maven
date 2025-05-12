@@ -1,6 +1,16 @@
 package com.cavanosa.virtual.controller;
 
 import com.cavanosa.virtual.entity.Tio;
+import com.cavanosa.virtual.applications.usecases.tios.CreateTioUseCase;
+import com.cavanosa.virtual.applications.usecases.tios.DeleteTioUseCase;
+import com.cavanosa.virtual.applications.usecases.tios.ExistsByEmailUseCase;
+import com.cavanosa.virtual.applications.usecases.tios.ExistsByIdAndNombre;
+import com.cavanosa.virtual.applications.usecases.tios.ExistsByIdUseCase;
+import com.cavanosa.virtual.applications.usecases.tios.ExistsByNameUseCase;
+import com.cavanosa.virtual.applications.usecases.tios.ExistsByNombreAndIdNot;
+import com.cavanosa.virtual.applications.usecases.tios.GetTioUseCase;
+import com.cavanosa.virtual.applications.usecases.tios.ListTioUseCase;
+import com.cavanosa.virtual.applications.usecases.tios.UpdateTioUseCase;
 import com.cavanosa.virtual.dto.Mensaje;
 import com.cavanosa.virtual.dto.TioDto;
 import com.cavanosa.virtual.service.TioService;
@@ -24,32 +34,71 @@ import java.util.List;
 @Controller
 public class TioController {
 
-    //@Autowired
-    //TioService tioService;
+	
+	@Autowired
+	CreateTioUseCase createTioUseCase;
+	
+	@Autowired
+	ExistsByNameUseCase existsByNameUseCase;
+	
+	@Autowired
+	ExistsByEmailUseCase existsByEmailUseCase;
+	
+	@Autowired
+	ListTioUseCase listTioUseCase;
+	
+	@Autowired
+	GetTioUseCase getTioUseCase;
+	
+	@Autowired
+	ExistsByIdUseCase existsByIdUseCase;
+	
+	@Autowired
+	UpdateTioUseCase updateTioUseCase;
+	
+	@Autowired
+	DeleteTioUseCase deleteTioUseCase;
+	
+	@Autowired
+	ExistsByIdAndNombre existsByIdAndNombre;
+	
+	@Autowired
+	ExistsByNombreAndIdNot existsByNombreAndIdNot;
+	
+	@RequestMapping(value = "/nuevo", method = RequestMethod.POST)
+	public ResponseEntity<?> saveTio(@Valid @RequestBody TioDto tioDto, BindingResult bindingResult){
+	    try {
+	        if(existsByNameUseCase.execute(tioDto.getNombre()))
+	            return getMensaje("ya existe ese nombre", HttpStatus.BAD_REQUEST);
+	        if(existsByEmailUseCase.execute(tioDto.getEmail()))
+	            return getMensaje("ya existe ese email", HttpStatus.BAD_REQUEST);
 
-	@Autowired
-	TioReportServiceImpl tioReportServiceImpl;
-	
-	@Autowired
-	TioWriterServiceImpl tioWriterServiceImpl;
-	
-	@Autowired
-	TioRemovableServiceImpl tioRemovableServiceImpl;
-	
+	        Tio tio = new Tio(tioDto.getNombre(), tioDto.getEmail(), tioDto.getPassword());
+	        Tio savedTio = createTioUseCase.execute(tio);
+
+	        if(savedTio != null) {
+	            return new ResponseEntity<>(savedTio, HttpStatus.CREATED);
+	        } else {
+	            return getMensaje("no se pudo guardar el tio", HttpStatus.BAD_REQUEST);
+	        }
+	    } catch(Exception e) {
+	        return getMensaje("error en base de datos", HttpStatus.BAD_REQUEST);
+	    }
+	}
     
     @GetMapping("/lista")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<Tio>> lista(){
-        List<Tio> list = tioReportServiceImpl.getAll();
+        List<Tio> list = listTioUseCase.execute(new Tio());
         return new ResponseEntity<List<Tio>>(list, HttpStatus.OK);
     }
 
    
     @GetMapping("/detalle/{id}")
     public ResponseEntity<?> getOne(@PathVariable("id") Long id){
-        if(!tioReportServiceImpl.existsById(id))
+        if(!existsByIdUseCase.execute(id))
             return getMensaje("no existe", HttpStatus.NOT_FOUND);
-        Tio tio = tioReportServiceImpl.getOneById(id).get();
+        Tio tio = getTioUseCase.execute(id);
         ResponseEntity<Tio> resultado = ResponseEntity.ok(tio);
         return resultado;
     }
@@ -69,7 +118,7 @@ public class TioController {
     
     @PostMapping("/logeo")
     private ResponseEntity<?> logeo(TioDto tioDto){
-        List<Tio> list2 = tioReportServiceImpl.getAll();
+        List<Tio> list2 = listTioUseCase.execute(new Tio());
         	List<Tio> list = new java.util.LinkedList<Tio>();
         	for(Tio temp: list2) {
         		boolean uno = temp.getNombre().equalsIgnoreCase(tioDto.getNombre());
@@ -84,59 +133,40 @@ public class TioController {
             	return getMensaje("usuario no existe", HttpStatus.BAD_REQUEST);
     }
 
-
-
     public ResponseEntity<Mensaje> getMensaje(String mensaje, HttpStatus status){
         Mensaje msj = new Mensaje(mensaje);
         ResponseEntity<Mensaje> entity = new ResponseEntity<Mensaje>(msj, status);
         return entity;
     }
 
-    
-    @RequestMapping(value = "/nuevo", method = RequestMethod.POST)
-    public ResponseEntity<?> saveTio(@Valid @RequestBody TioDto tioDto, BindingResult bindingResult){
-    	try{
-    	    if(tioReportServiceImpl.existsByNombre(tioDto.getNombre()))
-                return getMensaje("ya existe ese nombre", HttpStatus.BAD_REQUEST);
-            if(tioReportServiceImpl.existsByEmail(tioDto.getEmail()))
-                return getMensaje("ya existe ese email", HttpStatus.BAD_REQUEST);
-            Tio tio = new Tio(tioDto.getNombre(), tioDto.getEmail(), tioDto.getPassword());
-            //tioService.save(tio);
-            if(tioWriterServiceImpl.create(tio) == true) {
-        	    return new ResponseEntity<Tio>(tio, HttpStatus.CREATED);
-            }else
-        	    return getMensaje("usuario no existe", HttpStatus.BAD_REQUEST);
-    	}
-        catch(Exception e){
-        	return getMensaje("error en base de datos", HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<?> actualizar(@Valid @RequestBody TioDto tioDto, BindingResult bindingResult, @PathVariable("id") Long id){
-        if(bindingResult.hasErrors())
+    	if(bindingResult.hasErrors())
             return new ResponseEntity(new Mensaje("campos mal puestos"), HttpStatus.BAD_REQUEST);
-        if(!tioReportServiceImpl.existsById(id))
+        if(!existsByIdUseCase.execute(id))
             return new ResponseEntity(new Mensaje("no existe"), HttpStatus.NOT_FOUND);
-        if(tioReportServiceImpl.existsByNombre(tioDto.getNombre()) && tioReportServiceImpl.getOneByNombre(tioDto.getNombre()).get().getId() != id)
+        if(existsByNameUseCase.execute(tioDto.getNombre()))
             return new ResponseEntity(new Mensaje("ya existe ese nombre"), HttpStatus.BAD_REQUEST);
-        if(tioReportServiceImpl.existsByEmail(tioDto.getEmail()) && tioReportServiceImpl.getOneByEmail(tioDto.getEmail()).get().getId() != id)
+        if(existsByEmailUseCase.execute(tioDto.getEmail()))
             return new ResponseEntity(new Mensaje("ya existe ese email"), HttpStatus.BAD_REQUEST);
-        Tio tio = tioReportServiceImpl.getOneById(id).get();
+        Tio tio = getTioUseCase.execute(id);
         tio.setNombre(tioDto.getNombre());
         tio.setEmail(tioDto.getEmail());
         tio.setPassword(tioDto.getPassword());
-        tioWriterServiceImpl.create(tio);
-        return new ResponseEntity(new Mensaje("tio actualizado"), HttpStatus.OK);
+        if(updateTioUseCase.execute(tio)) {
+        	return new ResponseEntity(new Mensaje("tio actualizado"), HttpStatus.OK);
+        }else {
+        	return new ResponseEntity(new Mensaje("tio no actualizado"), HttpStatus.OK);
+        }
+        
     }
 
     
     @DeleteMapping("/borrar/{id}")
     public ResponseEntity<?> deleteTio(@PathVariable("id") Long id){
-        if(!tioReportServiceImpl.existsById(id))
+        if(!existsByIdUseCase.execute(id))
             return new ResponseEntity(new Mensaje("no existe"), HttpStatus.NOT_FOUND);
-       tioRemovableServiceImpl.delete(id);
+        deleteTioUseCase.execute(id);
         return new ResponseEntity(new Mensaje("tio eliminado"), HttpStatus.OK);
     }
 }

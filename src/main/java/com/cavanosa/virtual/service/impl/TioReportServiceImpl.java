@@ -13,7 +13,6 @@ import com.cavanosa.virtual.interfaces.IReadableTio;
 import com.cavanosa.virtual.entity.Tio;
 
 @Service
-@Transactional
 public class TioReportServiceImpl implements IReadableTio<Tio>{
 	@Autowired
     TioRepository tioRepository;
@@ -33,6 +32,7 @@ public class TioReportServiceImpl implements IReadableTio<Tio>{
     @Transactional(readOnly = true)
     @Override
     public List<Tio> getAll(){
+    	tioRepository.flush();
     	return tioRepository.findAll();
     }
     
@@ -70,6 +70,16 @@ public class TioReportServiceImpl implements IReadableTio<Tio>{
     @Override
     public Optional<Tio> getOneByEmail(String email){
         return tioRepository.findByEmail(email);
+    }
+    
+    @Override
+    public boolean existsByIdAndNombre(Long id, String nombre){
+        return tioRepository.existsByIdAndNombre(id, nombre);
+    }
+    
+    @Override
+    public boolean existsByNombreAndIdNot(String nombre, Long id) {
+    	return tioRepository.existsByNombreAndIdNot(nombre, id);
     }
     
 }

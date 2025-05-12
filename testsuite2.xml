@@ -3,17 +3,7 @@
 <suite name="Suite">
   <test thread-count="5" name="Test">
     <classes>
-      <class name="com.cavanosa.virtual.repository.TioRepoTestMockito"/>
-      <class name="com.cavanosa.virtual.service.TioSpringMockBeanTest"/>
-      <class name="com.cavanosa.virtual.repository.TioRepoTest"/>
-      <class name="com.cavanosa.virtual.controller.EjemploServiceTestConfig"/>
-      <class name="com.cavanosa.virtual.service.TioTestSpy"/>
-      <class name="com.cavanosa.virtual.controller.TioController2Test"/>
-      <class name="com.cavanosa.virtual.VirtualApplicationTests"/>
-      <class name="com.cavanosa.virtual.repository.MiArgsMatchers"/>
-      <class name="com.cavanosa.virtual.jpa.IntegracionJpaTest"/>
-      <class name="com.cavanosa.virtual.controller.EjemploControllerTest"/>
-      <class name="com.cavanosa.virtual.controller.TioControllerTest"/>
+      <class name="com.program.app.web.rest.UserRestControllerTest"/>
     </classes>
   </test> <!-- Test -->
 </suite> <!-- Suite -->

@@ -27,6 +27,13 @@ public class TioServiceImpl implements TioService{
     @Cacheable("tios")
     @Transactional(readOnly = true)
     @Override
+    public List<Tio> getAll(){
+        return tioRepository.findAll();
+    }
+    
+    @Cacheable("tios")
+    @Transactional(readOnly = true)
+    @Override
     public List<Tio> findAll(){
         return tioRepository.findAll();
     }
@@ -50,16 +57,18 @@ public class TioServiceImpl implements TioService{
     }
 
     @Override
-    public boolean save(Tio tio){
-        if(tio.getNombre().length() == 0 || tio.getEmail().length() == 0 || tio.getPassword().length() == 0) {
-            throw new ElementoVacio("Debe ingresar nombre, email y password");
-        }
-        if(tioRepository.existsByNombre(tio.getNombre()) || tioRepository.existsByEmail(tio.getEmail())) {
-            return false;
-        }
-        tioRepository.save(tio);
-        return true;
-    }
+	public Tio create(Tio model) {
+	    if(model.getNombre().isEmpty() || model.getEmail().isEmpty() || model.getPassword().isEmpty()) {
+	        throw new ElementoVacio("Debe ingresar nombre, email y password");
+	    }
+
+	    if(tioRepository.existsByNombre(model.getNombre()) || tioRepository.existsByEmail(model.getEmail())) {
+	        return null;
+	    }
+	    Tio tio = tioRepository.save(model);
+	    tioRepository.flush(); 
+	    return tio;
+	}
 
     @Override
     public void delete(Long id){
@@ -91,5 +100,10 @@ public class TioServiceImpl implements TioService{
             return tioOpt.get();
         }
         return null;
+    }
+    
+    @Override
+    public boolean existsByIdAndNombre(Long id, String nombre){
+        return tioRepository.existsByIdAndNombre(id, nombre);
     }
 }
